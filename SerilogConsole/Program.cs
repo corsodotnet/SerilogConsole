@@ -9,20 +9,40 @@ namespace SerilogConsole
 {
     internal class Program
     {
+
         static void Main(string[] args)
         {
-            var builder = new ConfigurationBuilder();
-            BuildConfing(builder);
-            var host = Hostbuilder();
-            Log.Logger = new LoggerConfiguration()
-                .ReadFrom.Configuration(builder.Build())
-                .CreateLogger();
+            IConfigurationBuilder builder = null;
+            IHost host = null;
 
-            var myServices = ActivatorUtilities
-            .CreateInstance<BrunoServices>(host.Services);
-            myServices.Run();
+            try
+            {
+                builder = new ConfigurationBuilder();
+                BuildConfing(builder);
 
-            Log.Logger.Information("Application starting up....");
+                Log.Logger = new LoggerConfiguration()
+                    .ReadFrom.Configuration(builder.Build())
+                    // .WriteTo.Seq("http://localhost:8081")
+                    .CreateLogger();
+
+                Log.Logger.Information("Application starting up....");
+                host = (IHost)Hostbuilder();
+
+                var myServices = ActivatorUtilities
+                      .CreateInstance<BrunoServices>(host.Services);
+                myServices.Run();
+
+            }
+            catch (Exception ex)
+            {
+
+                Log.Fatal("Application FAILED to Starting up!");
+            }
+            finally
+            {
+                // Log.CloseAndFlush();
+
+            }
         }
         static void BuildConfing(IConfigurationBuilder builder)
         {
