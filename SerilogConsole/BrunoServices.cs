@@ -15,9 +15,22 @@ namespace SerilogConsole
         }
         public void Run()
         {
-            for (int i = 0; i < config.GetValue<int>("LoopTimes"); i++)
+            try
             {
-                logger.LogInformation("Run number {runNumber}", i);
+                for (int i = 0; i < config.GetValue<int>("LoopTimes"); i++)
+                {
+                    if (i == 5)
+                    {
+                        throw new System.Exception("Esco dal programma");
+                    }
+                    logger.LogInformation("Run number {runNumber}", i);
+                }
+            }
+            catch (System.Exception ex)
+            {
+
+                logger.LogError(ex.Message);
+
             }
         }
     }

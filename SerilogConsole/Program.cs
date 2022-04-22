@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
+using System;
 using System.IO;
 
 namespace SerilogConsole
@@ -17,15 +18,19 @@ namespace SerilogConsole
                 .ReadFrom.Configuration(builder.Build())
                 .CreateLogger();
 
-            var myServices = ActivatorUtilities.CreateInstance<BrunoServices>(host.Services);
+            var myServices = ActivatorUtilities
+            .CreateInstance<BrunoServices>(host.Services);
             myServices.Run();
 
             Log.Logger.Information("Application starting up....");
         }
         static void BuildConfing(IConfigurationBuilder builder)
         {
+            var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            var parameter = (!string.IsNullOrEmpty(env)) ? string.Concat(env, ".") : string.Empty;
+
             builder.SetBasePath(Directory.GetCurrentDirectory())
-           .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+              .AddJsonFile($"appsettings.{parameter}json", optional: false, reloadOnChange: true);
         }
         static IHost Hostbuilder()
         {
